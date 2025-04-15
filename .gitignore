@@ -7,3 +7,5 @@
 /src/001_sdl_qt_rgb/x64
 /lib
 /tools
+/src/002_yuv_rgb_player/yuv_rgb_player
+/src/002_yuv_rgb_player/.vs
