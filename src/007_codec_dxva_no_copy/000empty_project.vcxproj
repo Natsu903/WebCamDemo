@@ -24,7 +24,7 @@
     <ProjectGuid>{eedc9ff2-2738-48cc-aa0c-542b1d2143cb}</ProjectGuid>
     <RootNamespace>My000emptyproject</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>codec</ProjectName>
+    <ProjectName>codec_hw_dxva_no_copy</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
