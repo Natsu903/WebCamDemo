@@ -20,3 +20,11 @@
 /src/007_codec_dxva_no_copy/.vs
 /src/007_codec_dxva_no_copy/codec_hw.eedc9ff2
 /src/006_codec/codec
+/src/009_recode_remux/.vs
+/src/009_recode_remux/recode_remux
+/src/008_rescale_800x600/.vs
+/src/008_rescale_800x600/rescale_800x600
+/src/010_rtsp_demux_thread/.vs
+/src/010_rtsp_demux_thread/rtsp_dem.eedc9ff2
+/src/011_rtsp_remux_chain/.vs
+/src/011_rtsp_remux_chain/rtsp_remux_chain
