@@ -12,6 +12,13 @@ extern "C"
 #pragma comment(lib,"avutil.lib")
 #pragma comment(lib,"avcodec.lib")
 
+static int TimeoutCallback(void* para)
+{
+    auto bf = (BaseFormat*)para;
+    if (bf->IsTimeout())return -1;//超时退出-1
+    return 0;
+}
+
 void BaseFormat::set_c(AVFormatContext* c)
 {
 	std::unique_lock<std::mutex>lock(mux_);
@@ -33,7 +40,22 @@ void BaseFormat::set_c(AVFormatContext* c)
         }
     }
     c_ = c;
-    if (!c_)return;
+    if (!c_)
+    {
+        is_connected_ = false;
+        return;
+    }
+    is_connected_ = true;
+
+    //计时用于超时判断
+    last_time_ = NowMs();
+
+    if (timeout_ms_ > 0)
+    {
+		AVIOInterruptCB cb = { TimeoutCallback ,this };
+		c_->interrupt_callback = cb;
+    }
+
     //区分是否有音频视频流
     audio_index_ = -1;
     video_index_ = -1;
@@ -75,6 +97,18 @@ bool BaseFormat::CopyPara(int stream_index, AVCodecContext* dst)
     return false;
 }
 
+std::shared_ptr<BasePara> BaseFormat::CopyVideoPara()
+{
+    int index = video_index();
+    std::shared_ptr<BasePara> re;
+    std::unique_lock<std::mutex>lock(mux_);
+    if (index < 0||!c_)return re;
+    re.reset(BasePara::Create());
+    *re->time_base = c_->streams[index]->time_base;
+    avcodec_parameters_copy(re->para, c_->streams[index]->codecpar);
+    return re;
+}
+
 bool BaseFormat::RescaleTime(AVPacket* pkt, long long offset_pts, XRational time_base)
 {
 	std::unique_lock<std::mutex>lock(mux_);
@@ -92,4 +126,15 @@ bool BaseFormat::RescaleTime(AVPacket* pkt, long long offset_pts, XRational time
 	pkt->duration = av_rescale_q(pkt->duration, in_time_base, out_stream->time_base);
 	pkt->pos = -1;
     return true;
+}
+
+void BaseFormat::set_timeout_ms(int ms)
+{
+    std::unique_lock<std::mutex>lock(mux_);
+    this->timeout_ms_ = ms;
+    if (c_)
+    {
+        AVIOInterruptCB cb = { TimeoutCallback,this };
+        c_->interrupt_callback = cb;
+    }
 }

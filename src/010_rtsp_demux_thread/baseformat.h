@@ -1,5 +1,7 @@
 #pragma once
 #include <mutex>
+#include "video_view.h"
+#include "tools.h"
 
 struct AVFormatContext;
 struct AVCodecParameters;
@@ -31,6 +33,9 @@ public:
 	bool CopyPara(int stream_index, AVCodecParameters* dst);
 	bool CopyPara(int stream_index, AVCodecContext* dst);
 
+	//返回智能指针，复制视频参数
+	std::shared_ptr<BasePara> CopyVideoPara();
+
 	//根据timebase换算时间
 	bool RescaleTime(AVPacket* pkt, long long offset_pts, XRational time_base);
 
@@ -43,13 +48,32 @@ public:
 
 	int video_codec_id() { return video_codec_id_; }
 
+	//判断是否超时
+	bool IsTimeout()
+	{
+		if (NowMs() - last_time_ > timeout_ms_)
+		{
+			last_time_ = NowMs();
+			is_connected_ = false;
+			return true;
+		}
+		return false;
+	}
+
+	void set_timeout_ms(int ms);
+
+	bool is_connected() { return is_connected_; }
+
 protected:
-	AVFormatContext* c_;//封装解封装上下文
-	std::mutex mux_;//互斥量
-	int video_index_ = 0;//video和audio在stream中的索引
+	int timeout_ms_ = 0;		//超时时间
+	long long last_time_ = 0;	//上次接收到数据的时间
+	bool is_connected_ = false;	//是否链接成功
+	AVFormatContext* c_;		//封装解封装上下文
+	std::mutex mux_;			//互斥量
+	int video_index_ = 0;		//video和audio在stream中的索引
 	int audio_index_ = 1;
 	XRational video_time_base_ = { 1,25 };
 	XRational audio_time_base_ = { 1,9000 };
-	int video_codec_id_ = 0;//编码器ID
+	int video_codec_id_ = 0;	//编码器ID
 };
 

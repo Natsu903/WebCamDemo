@@ -136,7 +136,9 @@
     <ClCompile Include="baseformat.cpp" />
     <ClCompile Include="basecodec.cpp" />
     <ClCompile Include="decode.cpp" />
+    <ClCompile Include="decode_task.cpp" />
     <ClCompile Include="demux.cpp" />
+    <ClCompile Include="demux_task.cpp" />
     <ClCompile Include="encode.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mux.cpp" />
@@ -148,7 +150,9 @@
     <ClInclude Include="baseformat.h" />
     <ClInclude Include="basecodec.h" />
     <ClInclude Include="decode.h" />
+    <ClInclude Include="decode_task.h" />
     <ClInclude Include="demux.h" />
+    <ClInclude Include="demux_task.h" />
     <ClInclude Include="encode.h" />
     <ClInclude Include="mux.h" />
     <ClInclude Include="private_sdl.h" />

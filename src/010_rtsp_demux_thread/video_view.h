@@ -1,8 +1,7 @@
 #pragma once
 #include <mutex>
 #include <fstream>
-
-struct AVFrame;
+#include "tools.h"
 
 void MSleep(unsigned int ms);
 
@@ -38,6 +37,8 @@ public:
 	 * \return 是否创建成功
 	 */
 	virtual bool Init(int w, int h, Format fmt = RGBA, void* win_id = nullptr)=0;
+
+	virtual bool Init(AVCodecParameters* para);
 
 	/**
 	 * 渲染图像 线程安全.

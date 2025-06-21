@@ -51,6 +51,22 @@ Video_View* Video_View::Create(RenderType type)
 	return nullptr;
 }
 
+bool Video_View::Init(AVCodecParameters* para)
+{
+	if (!para)return false;
+	auto fmt = (Format)para->format;
+	switch (para->format)
+	{
+	case AV_PIX_FMT_YUV420P:
+	case AV_PIX_FMT_YUVJ420P:
+		fmt = YUV420P;
+		break;
+	default:
+		break;
+	}
+	return Init(para->width,para->height,fmt);
+}
+
 bool Video_View::DrawFrame(AVFrame* frame)
 {
 	if (!frame || !frame->data[0])return false;
@@ -72,6 +88,7 @@ bool Video_View::DrawFrame(AVFrame* frame)
 	switch (frame->format)
 	{
 	case AV_PIX_FMT_YUV420P:
+	case AV_PIX_FMT_YUVJ420P:
 		return Draw(
 			frame->data[0], frame->linesize[0],
 			frame->data[1], frame->linesize[1],

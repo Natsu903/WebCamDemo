@@ -2,6 +2,7 @@
 #include <thread>
 #include <mutex>
 #include <iostream>
+#include <list>
 
 //日志
 enum LogLevel
@@ -19,12 +20,18 @@ std::cout<<level<<":"<<__FILE__<<":"<<__LINE__<<":\n"\
 <<s<<std::endl;
 
 #define LOGDEBUG(s) PRINTLOG(s,LOG_TYPE_DEBUG)
-#define LOGINFO(s) PRINTLOG(s,	LOG_TYPE_INFO)
+#define LOGINFO(s) PRINTLOG(s,LOG_TYPE_INFO)
 #define LOGERROR(s) PRINTLOG(s,LOG_TYPE_ERROR)
 #define LOGDEBUG(s) PRINTLOG(s,LOG_TYPE_DEBUG)
 
+struct AVPacket;
+struct AVCodecParameters;
+struct AVRational;
+struct AVFrame;
 
-class Demuxthread
+void FreeFrame(AVFrame** frame);
+
+class BaseThread
 {
 public:
 	//启动线程
@@ -32,6 +39,26 @@ public:
 
 	//结束线程
 	virtual void Stop();
+
+	//执行任务，需要重载
+	virtual void Do(AVPacket* pkt){}
+
+	//传递到下个责任链函数
+	virtual void Next(AVPacket* pkt)
+	{
+		std::unique_lock<std::mutex> lock(m_);
+		if (next_)
+		{
+			next_->Do(pkt);
+		}
+	}
+
+	//设置责任链下一个节点
+	void set_next(BaseThread* bt)
+	{
+		std::unique_lock<std::mutex> lock(m_);
+		next_ = bt;
+	}
 
 protected:
 	//线程入口函数
@@ -46,9 +73,40 @@ protected:
 private:
 	std::thread th_;
 	std::mutex m_;
+	BaseThread* next_ = nullptr;//责任链下一个节点
 };
 
 class Tools
 {
 };
 
+//音视频参数
+class BasePara
+{
+public:
+	AVCodecParameters* para = nullptr;//音视频参数
+	AVRational* time_base = nullptr;//时间基数
+
+	//创建对象
+	static BasePara* Create();
+	~BasePara();
+private:
+	//禁止创建栈中对象
+	BasePara();
+};
+
+/**
+ * 线程安全avpacket list.
+ * 责任链收到数据先交由到列表中，线程再从列表中取得处理
+ */
+class SafetyAVPacketList
+{
+public:
+	AVPacket* Pop();
+	void Push(AVPacket* pkt);
+
+private:
+	std::list<AVPacket*> pkts_;
+	int max_packets_ = 100;//最大列表数量，超出清理
+	std::mutex mux_;
+};

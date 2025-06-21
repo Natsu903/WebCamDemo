@@ -20,5 +20,6 @@ public:
 	bool Read(AVPacket* pkt);
 
 	bool Seek(long long pts, int stream_index);
+
 };
 
