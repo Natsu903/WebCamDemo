@@ -28,3 +28,11 @@
 /src/010_rtsp_demux_thread/rtsp_dem.eedc9ff2
 /src/011_rtsp_remux_chain/.vs
 /src/011_rtsp_remux_chain/rtsp_remux_chain
+/src/012_mycodec/x64
+/src/013_test_audio_play/.vs
+/src/013_test_audio_play/test_audio_play
+/src/013_test_audio_play/webcam
+/src/014_test_player/.vs
+/src/014_test_player/test_audio_play
+/src/014_test_player/test_player
+/src/014_test_player/webcam
